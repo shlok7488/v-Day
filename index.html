@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Breach Detected</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;family=Orbitron:wght@400;700;900&amp;display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      background: #000;
+      overflow-x: hidden;
+    }
+    
+    /* Scanlines overlay */
+    .scanlines::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 65, 0.03) 0px,
+        rgba(0, 255, 65, 0.03) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+    
+    /* CRT flicker */
+    .crt-flicker {
+      animation: flicker 0.15s infinite;
+    }
+    
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.98; }
+    }
+    
+    /* Matrix rain canvas */
+    #matrix-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    
+    /* Glowing text */
+    .glow-green {
+      color: #00ff41;
+      text-shadow: 0 0 5px #00ff41, 0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 40px #00ff41;
+    }
+    
+    .glow-green-subtle {
+      color: #00ff41;
+      text-shadow: 0 0 5px #00ff41, 0 0 10px #00ff41;
+    }
+    
+    .glow-red {
+      color: #ff0040;
+      text-shadow: 0 0 5px #ff0040, 0 0 10px #ff0040, 0 0 20px #ff0040;
+    }
+    
+    .glow-pink {
+      color: #ff00ff;
+      text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+    }
+    
+    /* Terminal window */
+    .terminal {
+      background: rgba(0, 10, 0, 0.85);
+      border: 1px solid #00ff41;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3), inset 0 0 60px rgba(0, 255, 65, 0.05);
+      backdrop-filter: blur(5px);
+    }
+    
+    .terminal-header {
+      background: linear-gradient(90deg, #001a00, #003300, #001a00);
+      border-bottom: 1px solid #00ff41;
+    }
+    
+    /* Typing animation */
+    .typing-cursor::after {
+      content: '█';
+      animation: blink 0.7s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    
+    /* Glitch effect */
+    .glitch {
+      animation: glitch 2s infinite;
+    }
+    
+    @keyframes glitch {
+      0%, 90%, 100% { transform: translate(0); filter: none; }
+      91% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+      92% { transform: translate(2px, -1px); filter: hue-rotate(-90deg); }
+      93% { transform: translate(-1px, -1px); }
+      94% { transform: translate(1px, 2px); filter: hue-rotate(180deg); }
+    }
+    
+    /* Button styles */
+    .btn-accept {
+      background: linear-gradient(135deg, #001a00, #003300);
+      border: 2px solid #00ff41;
+      color: #00ff41;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-accept::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+      transform: rotate(45deg);
+      animation: shine 3s infinite;
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+    
+    .btn-decline {
+      background: linear-gradient(135deg, #1a0000, #330000);
+      border: 2px solid #ff0040;
+      color: #ff0040;
+      transition: all 0.3s ease;
+    }
+    
+    /* Progress bar */
+    .progress-bar {
+      background: #001a00;
+      border: 1px solid #00ff41;
+    }
+    
+    .progress-fill {
+      background: linear-gradient(90deg, #003300, #00ff41, #003300);
+      animation: progress-glow 1.5s infinite;
+    }
+    
+    @keyframes progress-glow {
+      0%, 100% { box-shadow: 0 0 5px #00ff41; }
+      50% { box-shadow: 0 0 20px #00ff41, 0 0 30px #00ff41; }
+    }
+    
+    /* Popup windows */
+    .popup {
+      background: rgba(0, 10, 0, 0.95);
+      border: 1px solid #00ff41;
+      box-shadow: 0 0 30px rgba(0, 255, 65, 0.5);
+      animation: popup-appear 0.3s ease-out;
+    }
+    
+    @keyframes popup-appear {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    /* Heart particles */
+    .heart-particle {
+      position: fixed;
+      font-size: 20px;
+      color: #00ff41;
+      text-shadow: 0 0 10px #00ff41;
+      pointer-events: none;
+      animation: float-up 3s ease-out forwards;
+      z-index: 500;
+    }
+    
+    @keyframes float-up {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-200px) scale(0.5); }
+    }
+    
+    /* Final reveal */
+    .reveal-container {
+      animation: reveal-glow 2s infinite;
+    }
+    
+    @keyframes reveal-glow {
+      0%, 100% { box-shadow: 0 0 30px rgba(255, 0, 255, 0.3); }
+      50% { box-shadow: 0 0 60px rgba(255, 0, 255, 0.6), 0 0 100px rgba(0, 255, 65, 0.3); }
+    }
+    
+    /* Noise overlay */
+    .noise::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 999;
+    }
+    
+    /* Screen shake */
+    .shake {
+      animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+    
+    /* Orbitron for headers */
+    .orbitron {
+      font-family: 'Orbitron', sans-serif;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-black text-green-400 scanlines noise crt-flicker">
+  <canvas id="matrix-canvas"></canvas>
+  <div id="app" class="relative z-10 min-h-full flex items-center justify-center p-4"><!-- Boot Sequence -->
+   <div id="boot-sequence" class="terminal w-full max-w-2xl p-6 rounded-lg">
+    <div class="terminal-header -m-6 mb-4 p-3 rounded-t-lg flex items-center gap-2">
+     <div class="w-3 h-3 rounded-full bg-red-500"></div>
+     <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+     <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="ml-4 text-xs glow-green-subtle">SYSTEM_BREACH.exe</span>
+    </div>
+    <div id="boot-text" class="space-y-2 text-sm"><!-- Boot text will be typed here -->
+    </div>
+    <div id="progress-container" class="mt-6 hidden">
+     <div class="text-xs mb-2 glow-green-subtle">
+      LOADING ROMANTIC PROTOCOL...
+     </div>
+     <div class="progress-bar h-4 rounded overflow-hidden">
+      <div id="progress-fill" class="progress-fill h-full w-0 transition-all duration-100"></div>
+     </div>
+     <div id="progress-percent" class="text-xs mt-1 text-right">
+      0%
+     </div>
+    </div>
+   </div><!-- Main Content (Hidden Initially) -->
+   <div id="main-content" class="hidden w-full max-w-3xl"><!-- Main Terminal -->
+    <div class="terminal p-6 rounded-lg mb-6">
+     <div class="terminal-header -m-6 mb-6 p-3 rounded-t-lg flex items-center justify-between">
+      <div class="flex items-center gap-2">
+       <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+       <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+       <div class="w-3 h-3 rounded-full bg-green-500"></div>
+      </div><span class="text-xs glow-green-subtle glitch">⚠ CRITICAL_QUESTION.exe</span> <span class="text-xs opacity-50">PID: 14021402</span>
+     </div>
+     <div class="text-center space-y-6">
+      <div class="text-2xl md:text-3xl orbitron glow-green glitch" id="greeting-text">
+       HELLO <span id="recipient-display">KRUSHA</span>
+      </div>
+      <div class="space-y-2 text-sm md:text-base glow-green-subtle">
+       <p>&gt; This system has been compromised by <span id="sender-display" class="glow-pink">SHLOK</span></p>
+       <p>&gt; A critical question has been injected into your interface</p>
+       <p>&gt; Resistance protocols have been... disabled 💚</p>
+      </div>
+      <div class="py-8">
+       <div class="text-3xl md:text-5xl orbitron glow-pink animate-pulse">
+        WILL YOU BE MY<br>
+        VALENTINE? 💚
+       </div>
+      </div><!-- Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"><button id="accept-btn" class="btn-accept px-8 py-4 rounded-lg text-lg orbitron font-bold relative"> ACCEPT ❤️ </button> <button id="decline-btn" class="btn-decline px-8 py-4 rounded-lg text-lg orbitron font-bold"> DECLINE ☠️ </button>
+      </div>
+      <div id="btn-message" class="text-sm glow-red h-6 mt-4"></div>
+     </div>
+    </div><!-- Status Bar -->
+    <div class="terminal p-3 rounded-lg text-xs flex flex-wrap justify-between gap-2"><span class="glow-green-subtle">STATUS: <span class="text-yellow-400">AWAITING_RESPONSE</span></span> <span class="glow-green-subtle">LOVE_LEVEL: <span class="text-pink-400">MAXIMUM</span></span> <span class="glow-green-subtle">ESCAPE: <span class="text-red-400">IMPOSSIBLE</span></span>
+    </div>
+   </div><!-- Final Reveal (Hidden Initially) -->
+   <div id="final-reveal" class="hidden w-full max-w-2xl">
+    <div class="reveal-container terminal p-8 rounded-lg text-center">
+     <div class="terminal-header -m-8 mb-8 p-3 rounded-t-lg"><span class="text-xs glow-pink">💚 TRANSMISSION_COMPLETE 💚</span>
+     </div>
+     <div class="space-y-8">
+      <div class="text-6xl animate-pulse">
+       💚
+      </div>
+      <div class="text-2xl md:text-4xl orbitron glow-pink">
+       TRANSMISSION<br>
+       COMPLETE
+      </div>
+      <div class="text-xl md:text-2xl glow-green">
+       Happy Valentine's Day<br><span id="final-recipient" class="text-3xl md:text-4xl orbitron">KRUSHA</span>
+      </div>
+      <div class="text-lg glow-green-subtle">
+       — <span id="final-sender">SHLOK</span> 💚
+      </div>
+      <div class="text-xs opacity-50 mt-8">
+       &gt; Love protocol successfully installed<br>
+        &gt; Rejection.exe permanently deleted<br>
+        &gt; Heart firewall: DISABLED
+      </div>
+     </div>
+    </div>
+   </div>
+  </div><!-- Popup Container -->
+  <div id="popup-container" class="fixed inset-0 pointer-events-none z-50"></div>
+  <script>
+    // Configuration
+    const defaultConfig = {
+      sender_name: 'SHLOK',
+      recipient_name: 'KRUSHA'
+    };
+    
+    let config = { ...defaultConfig };
+    
+    // Matrix Rain
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    const matrixChars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ♥❤💚';
+    const fontSize = 14;
+    let columns = Math.floor(canvas.width / fontSize);
+    let drops = Array(columns).fill(1);
+    let heartMode = false;
+    
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = heartMode ? '#ff00ff' : '#00ff41';
+      ctx.font = fontSize + 'px monospace';
+      
+      for (let i = 0; i < drops.length; i++) {
+        let char;
+        if (heartMode && Math.random() > 0.7) {
+          char = '💚';
+        } else {
+          char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+        }
+        
+        ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+        
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+    
+    setInterval(drawMatrix, 50);
+    
+    // Boot Sequence
+    const bootMessages = [
+      { text: '> INITIALIZING SYSTEM...', delay: 0 },
+      { text: '> SCANNING NETWORK...', delay: 800 },
+      { text: '> BYPASSING FIREWALL...', delay: 1600 },
+      { text: '> DISABLING SECURITY PROTOCOLS...', delay: 2400 },
+      { text: '> LOCATING TARGET: {RECIPIENT}', delay: 3200 },
+      { text: '> TARGET ACQUIRED ✓', delay: 4000 },
+      { text: '> INJECTING ROMANTIC PAYLOAD...', delay: 4800 },
+      { text: '> ACCESS GRANTED █', delay: 5600 }
+    ];
+    
+    async function typeText(element, text, speed = 30) {
+      element.textContent = '';
+      for (let i = 0; i < text.length; i++) {
+        element.textContent += text[i];
+        await new Promise(r => setTimeout(r, speed));
+      }
+    }
+    
+    async function runBootSequence() {
+      const bootText = document.getElementById('boot-text');
+      
+      for (const msg of bootMessages) {
+        await new Promise(r => setTimeout(r, msg.delay === 0 ? 500 : 800));
+        const line = document.createElement('div');
+        line.className = 'glow-green-subtle';
+        bootText.appendChild(line);
+        const displayText = msg.text.replace('{RECIPIENT}', config.recipient_name);
+        await typeText(line, displayText);
+      }
+      
+      // Show progress bar
+      const progressContainer = document.getElementById('progress-container');
+      progressContainer.classList.remove('hidden');
+      
+      const progressFill = document.getElementById('progress-fill');
+      const progressPercent = document.getElementById('progress-percent');
+      
+      for (let i = 0; i <= 100; i += 2) {
+        progressFill.style.width = i + '%';
+        progressPercent.textContent = i + '%';
+        await new Promise(r => setTimeout(r, 30));
+      }
+      
+      await new Promise(r => setTimeout(r, 500));
+      
+      // Transition to main content
+      document.getElementById('boot-sequence').classList.add('hidden');
+      document.getElementById('main-content').classList.remove('hidden');
+      document.getElementById('main-content').classList.add('shake');
+    }
+    
+    // Popup Messages
+    const popupMessages = [
+      'Injecting romance protocol...',
+      'Rejection.exe has crashed',
+      'Override successful',
+      'You cannot exit this simulation',
+      'Love firewall activated',
+      'Feelings.dll loaded',
+      'Heart rate: ELEVATED',
+      'Escape route: NOT FOUND',
+      'Cuteness levels: CRITICAL',
+      'Resistance is adorable but futile'
+    ];
+    
+    function showPopup(message, x, y) {
+      const container = document.getElementById('popup-container');
+      const popup = document.createElement('div');
+      popup.className = 'popup absolute p-4 rounded text-sm max-w-xs';
+      popup.style.left = Math.min(x, window.innerWidth - 250) + 'px';
+      popup.style.top = Math.min(y, window.innerHeight - 100) + 'px';
+      popup.innerHTML = `
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-red-500">⚠</span>
+          <span class="glow-green text-xs">SYSTEM_MESSAGE</span>
+        </div>
+        <div class="glow-green-subtle">${message}</div>
+      `;
+      container.appendChild(popup);
+      
+      setTimeout(() => {
+        popup.style.opacity = '0';
+        popup.style.transition = 'opacity 0.5s';
+        setTimeout(() => popup.remove(), 500);
+      }, 2000);
+    }
+    
+    function randomPopup() {
+      const msg = popupMessages[Math.floor(Math.random() * popupMessages.length)];
+      const x = Math.random() * (window.innerWidth - 200);
+      const y = Math.random() * (window.innerHeight - 100);
+      showPopup(msg, x, y);
+    }
+    
+    // Heart Particles
+    function spawnHeart(x, y) {
+      const heart = document.createElement('div');
+      heart.className = 'heart-particle';
+      heart.textContent = '💚';
+      heart.style.left = x + 'px';
+      heart.style.top = y + 'px';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 3000);
+    }
+    
+    // Accept Button Behavior
+    let acceptClicks = 0;
+    const acceptMessages = [
+      'Nice try, human.',
+      'Too easy... try again.',
+      'System requires more effort.',
+      'Persistence detected... interesting.',
+      'Almost got it...',
+      'One more time...',
+      'Okay okay, you win! 💚'
+    ];
+    
+    function setupAcceptButton() {
+      const btn = document.getElementById('accept-btn');
+      const msgDiv = document.getElementById('btn-message');
+      
+      btn.addEventListener('mouseenter', () => {
+        if (acceptClicks < 5) {
+          // Move button randomly
+          const maxX = window.innerWidth - btn.offsetWidth - 100;
+          const maxY = window.innerHeight - btn.offsetHeight - 100;
+          const newX = Math.random() * maxX;
+          const newY = Math.random() * maxY;
+          
+          btn.style.position = 'fixed';
+          btn.style.left = newX + 'px';
+          btn.style.top = newY + 'px';
+          btn.style.zIndex = '100';
+          
+          msgDiv.textContent = acceptMessages[Math.min(acceptClicks, acceptMessages.length - 1)];
+          acceptClicks++;
+          
+          spawnHeart(newX, newY);
+          randomPopup();
+        }
+      });
+      
+      btn.addEventListener('click', () => {
+        if (acceptClicks >= 5) {
+          showFinalReveal();
+        } else {
+          msgDiv.textContent = acceptMessages[Math.min(acceptClicks, acceptMessages.length - 1)];
+          acceptClicks++;
+          randomPopup();
+        }
+      });
+    }
+    
+    // Decline Button Behavior
+    const declineMessages = [
+      'Command not recognized',
+      'Permission denied',
+      'That option was deleted',
+      'Suspicious decision detected',
+      'System recommends reconsideration',
+      'Error 404: Option not found',
+      'Nice try, try again',
+      'Decline.exe has stopped working'
+    ];
+    
+    let declineClicks = 0;
+    
+    function setupDeclineButton() {
+      const btn = document.getElementById('decline-btn');
+      const msgDiv = document.getElementById('btn-message');
+      
+      btn.addEventListener('click', () => {
+        declineClicks++;
+        
+        // Random behavior
+        const behavior = Math.floor(Math.random() * 5);
+        
+        switch(behavior) {
+          case 0: // Shrink
+            btn.style.transform = `scale(${Math.max(0.3, 1 - declineClicks * 0.1)})`;
+            break;
+          case 1: // Rotate
+            btn.style.transform = `rotate(${declineClicks * 15}deg)`;
+            break;
+          case 2: // Change text
+            btn.textContent = declineMessages[Math.floor(Math.random() * declineMessages.length)];
+            break;
+          case 3: // Shake
+            btn.classList.add('shake');
+            setTimeout(() => btn.classList.remove('shake'), 500);
+            break;
+          case 4: // Glitch
+            btn.classList.add('glitch');
+            setTimeout(() => btn.classList.remove('glitch'), 1000);
+            break;
+        }
+        
+        msgDiv.textContent = declineMessages[Math.floor(Math.random() * declineMessages.length)];
+        randomPopup();
+        
+        // After many clicks, button "breaks"
+        if (declineClicks > 7) {
+          btn.textContent = 'BROKEN ☠️';
+          btn.disabled = true;
+          btn.style.opacity = '0.3';
+          msgDiv.textContent = 'Decline option has been permanently corrupted';
+        }
+      });
+    }
+    
+    // Final Reveal
+    function showFinalReveal() {
+      heartMode = true;
+      
+      document.getElementById('main-content').classList.add('hidden');
+      document.getElementById('final-reveal').classList.remove('hidden');
+      
+      // Spawn lots of hearts
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          spawnHeart(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
+        }, i * 100);
+      }
+      
+      // Update final text
+      document.getElementById('final-recipient').textContent = config.recipient_name;
+      document.getElementById('final-sender').textContent = config.sender_name;
+    }
+    
+    // Random popups during main view
+    function startRandomPopups() {
+      setInterval(() => {
+        if (!document.getElementById('main-content').classList.contains('hidden')) {
+          if (Math.random() > 0.7) {
+            randomPopup();
+          }
+        }
+      }, 5000);
+    }
+    
+    // Config change handler
+    async function onConfigChange(newConfig) {
+      config = { ...defaultConfig, ...newConfig };
+      
+      // Update recipient displays
+      const recipientDisplay = document.getElementById('recipient-display');
+      if (recipientDisplay) {
+        recipientDisplay.textContent = config.recipient_name || defaultConfig.recipient_name;
+      }
+      
+      // Update sender displays
+      const senderDisplay = document.getElementById('sender-display');
+      if (senderDisplay) {
+        senderDisplay.textContent = config.sender_name || defaultConfig.sender_name;
+      }
+      
+      // Update final reveal
+      const finalRecipient = document.getElementById('final-recipient');
+      if (finalRecipient) {
+        finalRecipient.textContent = config.recipient_name || defaultConfig.recipient_name;
+      }
+      
+      const finalSender = document.getElementById('final-sender');
+      if (finalSender) {
+        finalSender.textContent = config.sender_name || defaultConfig.sender_name;
+      }
+    }
+    
+    // Map to capabilities
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+    
+    // Map to edit panel values
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['sender_name', config.sender_name || defaultConfig.sender_name],
+        ['recipient_name', config.recipient_name || defaultConfig.recipient_name]
+      ]);
+    }
+    
+    // Initialize
+    async function init() {
+      if (window.elementSdk) {
+        await window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities,
+          mapToEditPanelValues
+        });
+        config = { ...defaultConfig, ...window.elementSdk.config };
+      }
+      
+      // Apply initial config
+      await onConfigChange(config);
+      
+      // Setup interactions
+      setupAcceptButton();
+      setupDeclineButton();
+      startRandomPopups();
+      
+      // Start boot sequence
+      runBootSequence();
+      
+      // Easter egg: click anywhere spawns hearts
+      document.addEventListener('click', (e) => {
+        if (Math.random() > 0.5) {
+          spawnHeart(e.clientX, e.clientY);
+        }
+      });
+    }
+    
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cd69b3cd20b1f0a',t:'MTc3MTAwOTYyMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
