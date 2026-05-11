@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="S♥K Flix — A Netflix-style love story of Shlok & Krusha. Our memories, our moments, our world." />
+  <title>S♥K Flix — Shlok & Krusha</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head>
+<body>
+
+  <!-- ===== PROFILE SELECTION GATE ===== -->
+  <div class="profile-gate" id="profileGate">
+    <div class="profile-gate-bg"></div>
+    <div class="profile-gate-content">
+      <h1>Who's <span>watching</span>?</h1>
+      <div class="profile-cards">
+        <div class="profile-card" onclick="selectProfile('Shlok')">
+          <div class="profile-avatar" id="shlokAvatar">
+            <img src="../photos/IMG_20250228_202313_719.jpg" alt="Shlok" />
+          </div>
+          <span class="profile-name">Shlok</span>
+        </div>
+        <div class="profile-card" onclick="selectProfile('Krusha')">
+          <div class="profile-avatar" id="krushaAvatar">
+            <img src="../photos/IMG_20250224_152851_008.jpg" alt="Krusha" />
+          </div>
+          <span class="profile-name">Krusha</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== LOADING SCREEN ===== -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-spinner">
+      <div class="spinner-ring"></div>
+      <span class="loading-brand">S<span class="heart">♥</span>K</span>
+    </div>
+  </div>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <a href="#" class="navbar-brand">
+      S<span class="heart">♥</span>K FLIX
+    </a>
+    <ul class="nav-links">
+      <li><a href="#home" class="active">Home</a></li>
+      <li><a href="#ourDates">Our Dates</a></li>
+      <li><a href="#continueWatching">Memories</a></li>
+      <li><a href="#top10Moments">Top 10</a></li>
+      <li><a href="#shlokFavorites">Favorites</a></li>
+      <li><a href="#timeline">Timeline</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="icon-btn" title="Search" onclick="toggleSearch()">
+        <i class="fas fa-search"></i>
+      </button>
+      <button class="icon-btn" title="Notifications">
+        <i class="fas fa-bell"></i>
+        <span class="notification-dot"></span>
+      </button>
+      <div class="nav-profile" id="navProfile">
+        💑
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero" id="home">
+    <div class="hero-bg" id="heroBg">
+      <!-- Filled dynamically from manifest -->
+    </div>
+    <div class="hero-content fade-in-up">
+      <div class="hero-tag">
+        <span class="dot"></span>
+        S♥K ORIGINAL
+      </div>
+      <h1 class="hero-title" id="heroTitle">Shlok & Krusha</h1>
+      <p class="hero-desc" id="heroDesc">
+        A love story that doesn't need a script. Every chapter written together, every scene lived for real. This is our story — unfiltered, unscripted, unforgettable.
+      </p>
+      <div class="hero-actions">
+        <button class="btn-play" onclick="playMemory()">
+          <i class="fas fa-play"></i> Play Our Story
+        </button>
+        <button class="btn-info" onclick="openAboutModal()">
+          <i class="fas fa-info-circle"></i> More Info
+        </button>
+      </div>
+      <div class="hero-meta">
+        <span class="badge">♥ Forever</span>
+        <span>2024</span>
+        <span>•</span>
+        <span>Infinite Seasons</span>
+        <span>•</span>
+        <span>HD</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DYNAMIC CONTENT ROWS (injected by JS) ===== -->
+  <main id="dynamicContent">
+    <!-- All carousels will be dynamically generated here -->
+  </main>
+
+  <!-- ===== MEDIA MODAL ===== -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModalDirect()"><i class="fas fa-times"></i></button>
+      <div class="modal-hero" id="modalHero">
+        <!-- Media goes here dynamically -->
+      </div>
+      <div class="modal-body">
+        <h2 class="modal-title" id="modalTitle">Memory Title</h2>
+        <div class="modal-info">
+          <span class="match">♥ 100% Match</span>
+          <span id="modalDate">2024</span>
+          <span>•</span>
+          <span id="modalDuration">Forever</span>
+          <span class="badge">HD</span>
+        </div>
+        <p class="modal-description" id="modalDesc">
+          The story behind this beautiful memory...
+        </p>
+        <div class="modal-tags" id="modalTags">
+          <!-- Dynamic tags -->
+        </div>
+        <div class="modal-nav" id="modalNav">
+          <button class="modal-nav-btn" id="modalPrev" onclick="navigateModal(-1)">
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+          <button class="modal-nav-btn" id="modalNext" onclick="navigateModal(1)">
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== VIDEO PLAYER MODAL ===== -->
+  <div class="video-player-overlay" id="videoPlayerOverlay" onclick="closeVideoPlayer(event)">
+    <div class="video-player-container" onclick="event.stopPropagation()">
+      <button class="video-close" onclick="closeVideoPlayerDirect()"><i class="fas fa-times"></i></button>
+      <video id="videoPlayer" controls autoplay>
+        <source id="videoSource" src="" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">S♥K FLIX</div>
+        <p class="footer-tagline">Every moment with you is my favorite episode.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Sections</h4>
+          <a href="#home">Home</a>
+          <a href="#ourDates">Our Dates</a>
+          <a href="#continueWatching">Memories</a>
+          <a href="#top10Moments">Milestones</a>
+        </div>
+        <div class="footer-col">
+          <h4>Categories</h4>
+          <a href="#shlokFavorites">Shlok's Picks</a>
+          <a href="#krushaFavorites">Krusha's Picks</a>
+          <a href="#timeline">Timeline</a>
+          <a href="#lateNight">Videos</a>
+        </div>
+        <div class="footer-col">
+          <h4>More</h4>
+          <a href="#nightPhotos">After Dark</a>
+          <a href="#adventures">Adventures</a>
+          <a href="#instagramScreenshots">Socials</a>
+          <a href="#">Bucket List</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Made with <span class="heart-text">♥</span> by Shlok for Krusha — © 2024 S♥K Flix. All love reserved.</p>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
